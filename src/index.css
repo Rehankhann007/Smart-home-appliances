@@ -1,0 +1,68 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 20% 14%;
+    --foreground: 240 10% 96%;
+
+    --card: 240 15% 20%;
+    --card-foreground: 240 10% 96%;
+
+    --popover: 240 15% 20%;
+    --popover-foreground: 240 10% 96%;
+
+    --primary: 255 89% 66%;
+    --primary-foreground: 240 10% 96%;
+
+    --secondary: 240 10% 25%;
+    --secondary-foreground: 240 10% 96%;
+
+    --muted: 240 10% 25%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 255 89% 66%;
+    --accent-foreground: 240 10% 96%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 240 10% 96%;
+
+    --border: 240 10% 25%;
+    --input: 240 10% 25%;
+    --ring: 255 89% 66%;
+
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-smart-home-bg text-smart-home-text;
+  }
+
+  /* Custom scrollbar for the entire app */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(240, 10%, 20%);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(255, 89%, 66%, 0.5);
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(255, 89%, 66%);
+  }
+}
