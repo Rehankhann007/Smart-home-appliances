@@ -40,66 +40,68 @@ const VoiceControl = () => {
     setFeedback(getCommandFeedback(command));
     executeCommand(command);
 
-    // Ensure it stays listening until you manually stop
     setTimeout(() => setIsProcessing(false), 1000);
   }
 
   function executeCommand(command: Command) {
     if (command.action === 'unknown') return;
 
-    let updatedDevices = [...devices];
-    let targetDevices: Device[] = [];
+    setDevices(prevDevices => {
+      let updatedDevices = [...prevDevices];
+      let targetDevices: Device[] = [];
 
-    if (command.deviceId) {
-      const device = updatedDevices.find(d => d.id === command.deviceId);
-      if (device) targetDevices = [device];
-    } else if (command.deviceType && command.location) {
-      targetDevices = updatedDevices.filter(d => d.type === command.deviceType && d.location === command.location);
-    } else if (command.deviceType) {
-      targetDevices = updatedDevices.filter(d => d.type === command.deviceType);
-    } else if (command.location) {
-      targetDevices = updatedDevices.filter(d => d.location === command.location);
-    }
+      if (command.deviceId) {
+        const device = updatedDevices.find(d => d.id === command.deviceId);
+        if (device) targetDevices = [device];
+      } else if (command.deviceType && command.location) {
+        targetDevices = updatedDevices.filter(d => d.type === command.deviceType && d.location === command.location);
+      } else if (command.deviceType) {
+        targetDevices = updatedDevices.filter(d => d.type === command.deviceType);
+      } else if (command.location) {
+        targetDevices = updatedDevices.filter(d => d.location === command.location);
+      }
 
-    if (targetDevices.length > 0) {
-      updatedDevices = updatedDevices.map(device => {
-        if (targetDevices.some(d => d.id === device.id)) {
-          let updatedDevice = { ...device };
-
-          switch (command.action) {
-            case 'turn_on':
-              updatedDevice.isActive = true;
-              break;
-            case 'turn_off':
-              updatedDevice.isActive = false;
-              break;
-            case 'toggle':
-              updatedDevice.isActive = !device.isActive;
-              break;
-            case 'set_intensity':
-              if (device.supportsIntensity && command.intensity !== undefined) {
-                updatedDevice.intensity = command.intensity;
+      if (targetDevices.length > 0) {
+        updatedDevices = updatedDevices.map(device => {
+          if (targetDevices.some(d => d.id === device.id)) {
+            let updatedDevice = { ...device };
+            switch (command.action) {
+              case 'turn_on':
                 updatedDevice.isActive = true;
-              }
-              break;
+                break;
+              case 'turn_off':
+                updatedDevice.isActive = false;
+                break;
+              case 'toggle':
+                updatedDevice.isActive = !device.isActive;
+                break;
+              case 'set_intensity':
+                if (device.supportsIntensity && command.intensity !== undefined) {
+                  updatedDevice.intensity = command.intensity;
+                  updatedDevice.isActive = true;
+                }
+                break;
+            }
+            return updatedDevice;
           }
-          return updatedDevice;
-        }
-        return device;
-      });
+          return device;
+        });
 
-      setDevices(updatedDevices);
-      toast({
-        title: "Command Executed",
-        description: getCommandFeedback(command),
-      });
-    } else {
-      toast({
-        title: "No Matching Devices",
-        description: "Couldn't find any device matching your command.",
-        variant: "destructive",
-      });
-    }
+        toast({
+          title: "Command Executed",
+          description: getCommandFeedback(command),
+        });
+
+        return updatedDevices;
+      } else {
+        toast({
+          title: "No Matching Devices",
+          description: "Couldn't find any device matching your command.",
+          variant: "destructive",
+        });
+        return prevDevices;
+      }
+    });
   }
 
   const handleDeviceUpdate = (updatedDevices: Device[]) => {
@@ -133,7 +135,7 @@ const VoiceControl = () => {
                   "relative",
                   isListening ? "bg-smart-home-inactive hover:bg-smart-home-inactive/90" : "bg-smart-home-accent hover:bg-smart-home-accent/90"
                 )}
-                onClick={isListening ? stopListening : startListening} // Toggle between start and stop
+                onClick={isListening ? stopListening : startListening}
                 disabled={!supported}
               >
                 {isListening ? (
